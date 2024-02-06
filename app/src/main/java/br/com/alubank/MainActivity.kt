@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -40,10 +42,34 @@ import br.com.alubank.ui.theme.textStyleCommonLarge
 import br.com.alubank.ui.theme.textStyleCommonMedium
 import br.com.alubank.ui.theme.textStyleCommonSmall
 
+/*
+*   Model dirigindo o layout
+* */
+data class AccountAction(
+    val text: String,
+    val icon: Painter,
+)
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+
+            val accountSamples = listOf(
+                AccountAction(
+                    text = "Depositar",
+                    icon = painterResource(id = R.drawable.ic_wallet)
+                ),
+                AccountAction(
+                    text = "Transferir",
+                    icon = painterResource(id = R.drawable.ic_cached)
+                ),
+                AccountAction(
+                    text = "Ler",
+                    icon = painterResource(id = R.drawable.ic_center_focus)
+                )
+            )
+
             AlubankTheme {
                 Surface(
                     color = projectBackground,
@@ -52,20 +78,7 @@ class MainActivity : ComponentActivity() {
                     Column {
                         AccountHeader()
                         AccountActivity()
-                        AccountActionsSection {
-                            ActionCard(
-                                text = "Depositar",
-                                icon = painterResource(id = R.drawable.ic_wallet)
-                            )
-                            ActionCard(
-                                text = "Transferir",
-                                icon = painterResource(id = R.drawable.ic_cached)
-                            )
-                            ActionCard(
-                                text = "Ler",
-                                icon = painterResource(id = R.drawable.ic_center_focus)
-                            )
-                        }
+                        AccountActionsSection(accountSamples)
                     }
                 }
             }
@@ -135,16 +148,24 @@ fun AccountActivity() {
         colors = CardDefaults.cardColors(
             containerColor = projectSurface
         )
-    ){
+    ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
-            modifier = Modifier.fillMaxWidth().padding(16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
             Text(text = "Total gasto", style = textStyleCommonSmall)
             Text(text = "$9900.97", style = textStyleCommonLarge)
-            Text(text = "Esse mês você gastou $1500.00 com jogos. Tente abaixar esse custo!", style = textStyleCommonSmall)
-            TextButton(onClick = {  }) {
-                Text(text = "Diga-me como", style = TextStyle(color = projectPrimary, fontSize = 16.sp))
+            Text(
+                text = "Esse mês você gastou $1500.00 com jogos. Tente abaixar esse custo!",
+                style = textStyleCommonSmall
+            )
+            TextButton(onClick = { }) {
+                Text(
+                    text = "Diga-me como",
+                    style = TextStyle(color = projectPrimary, fontSize = 16.sp)
+                )
             }
         }
     }
@@ -152,7 +173,7 @@ fun AccountActivity() {
 
 @Composable
 fun AccountActionsSection(
-    content: @Composable () -> Unit
+    accountList: List<AccountAction>
 ) {
     Column {
         Text(
@@ -161,13 +182,15 @@ fun AccountActionsSection(
             modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
         )
 
-        Row(
+        LazyRow(
             modifier = Modifier
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            content()
+            items(accountList) { acc ->
+                ActionCard(text = acc.text, icon = acc.icon)
+            }
         }
     }
 
@@ -198,7 +221,7 @@ fun ActionCard(
                 .padding(22.dp)
                 .fillMaxWidth()
         ) {
-            Icon(painter = icon, tint = Color.White, contentDescription = null)
+            Icon(painter = icon, tint = fontColor, contentDescription = null)
             Text(
                 text = text, style = TextStyle(
                     color = fontColor
